@@ -27,6 +27,7 @@ namespace prawo_jazdy
             SelectRandomQuestions();
             InitializeTimer();
             DisplayQuestion();
+            this.FormClosing += TeoretycznyA1_FormClosing; // Dodajemy obsługę zdarzenia zamykania formularza
         }
 
         private void LoadQuestionsFromDatabase()
@@ -34,9 +35,10 @@ namespace prawo_jazdy
             using (SqlConnection connection = new SqlConnection(@"Data Source=DESKTOP-ED41F2S;Initial Catalog=Prawo_jazdy;Integrated Security=True"))
             {
                 connection.Open();
-                string query = "SELECT p.PytanieID, p.PytanieText, o.OdpowiedzID, o.OdpowiedzText, o.Poprawne, o.Punkty " +
-                               "FROM Pytania_A1 p " +
-                               "JOIN Odpowiedzi_A o ON p.PytanieID = o.PytanieID";
+                string query = "SELECT p.PytanieID, p.PytanieText, o.OdpowiedzID, o.OdpowiedzText, o.Poprawne, o.Punkty, p.Kategoria " +
+                               "FROM Pytania p " +
+                               "JOIN Odpowiedzi o ON p.PytanieID = o.PytanieID " +
+                               "WHERE p.Kategoria = 'A1'";
 
                 SqlCommand command = new SqlCommand(query, connection);
                 SqlDataReader reader = command.ExecuteReader();
@@ -185,6 +187,15 @@ namespace prawo_jazdy
             var resultForm = new ResultForm(correctAnswersCount, selectedQuestions.Count, totalPoints, maxPoints, selectedQuestions);
             resultForm.Show();
             this.Close();
+        }
+
+        private void TeoretycznyA1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            var result = MessageBox.Show("Czy na pewno chcesz wyjść?", "Potwierdzenie", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.No)
+            {
+                e.Cancel = true;
+            }
         }
 
         private void TeoretycznyA1_Load(object sender, EventArgs e)
